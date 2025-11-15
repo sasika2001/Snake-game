@@ -1,6 +1,6 @@
 # main.py
 import pygame, sys
-from core.config import WINDOW_WIDTH, WINDOW_HEIGHT, BASE_FPS, FPS_INCREMENT, LEVEL_UP_SCORE, FONT_NAME, BUTTERFLY_MODE, EVENT_LOG_PATH
+from core.config import WINDOW_WIDTH, WINDOW_HEIGHT, BASE_FPS, FPS_INCREMENT, LEVEL_UP_SCORE, FONT_NAME, EVENT_LOG_PATH
 from agents.human_agent import HumanAgent
 from agents.cognitive_ai_agent import CognitiveAIAgent
 from game.environment import Environment
@@ -18,96 +18,133 @@ def safe_play(sound):
         except:
             pass
 
-def draw_button(screen, rect, text, font, color_bg, color_text):
-    pygame.draw.rect(screen, color_bg, rect)
-    txt_surf = font.render(text, True, color_text)
-    txt_rect = txt_surf.get_rect(center=rect.center)
-    screen.blit(txt_surf, txt_rect)
+def draw_text_center(screen, text, font, color, y):
+    txt = font.render(text, True, color)
+    screen.blit(txt, (WINDOW_WIDTH//2 - txt.get_width()//2, y))
 
-def game_over_screen(screen, font_large, human, ai_list, env):
+def start_menu(screen):
     clock = pygame.time.Clock()
+    font_large = pygame.font.SysFont(FONT_NAME, 50)
+    font_medium = pygame.font.SysFont(FONT_NAME, 36)
+
+    difficulty_levels = ['Easy', 'Medium', 'Hard']
+    ai_options = [1, 2, 3]
+    selected_difficulty = 0
+    selected_ai = 0
+    menu_stage = 0  # 0=difficulty, 1=AI count
+
     running = True
-
-    # Prepare scores and winner
-    scores = [(human.score, "Human")] + [(a.score, f"AI{idx+1}") for idx, a in enumerate(ai_list)]
-    winner = max(scores, key=lambda x: x[0])
-
-    # Button rects
-    restart_rect = pygame.Rect(WINDOW_WIDTH//2 - 80, WINDOW_HEIGHT//2 + 50, 160, 50)
-    exit_rect = pygame.Rect(WINDOW_WIDTH//2 - 80, WINDOW_HEIGHT//2 + 120, 160, 50)
-
     while running:
-        screen.fill((0,0,0))
-        y = 50
-        title = font_large.render("Game Over! Final Scores:", True, (255,255,255))
-        screen.blit(title, (WINDOW_WIDTH//2 - title.get_width()//2, y))
-        y += 50
+        screen.fill((20, 20, 40))
+        y = 100
+        draw_text_center(screen, "Cognitive MAS Snake Arena", font_large, (255,255,0), y)
+        y += 100
 
-        # Human score
-        scr = font_large.render(f"Human: {human.score}", True, human.color)
-        screen.blit(scr, (WINDOW_WIDTH//2 - scr.get_width()//2, y))
-        y += 40
-
-        # AI scores
-        colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
-        for idx, a in enumerate(ai_list):
-            s = font_large.render(f"AI{idx+1}: {a.score}", True, colors[idx%len(colors)])
-            screen.blit(s, (WINDOW_WIDTH//2 - s.get_width()//2, y))
-            y += 40
-
-        # Winner
-        winner_txt = font_large.render(f"Winner: {winner[1]}", True, (255,255,0))
-        screen.blit(winner_txt, (WINDOW_WIDTH//2 - winner_txt.get_width()//2, y+20))
-
-        # Draw buttons
-        draw_button(screen, restart_rect, "Restart", font_large, (0,128,0), (255,255,255))
-        draw_button(screen, exit_rect, "Exit", font_large, (128,0,0), (255,255,255))
+        if menu_stage == 0:
+            draw_text_center(screen, "Select Difficulty:", font_medium, (255,255,255), y)
+            y += 50
+            for idx, level in enumerate(difficulty_levels):
+                color = (255,255,0) if idx == selected_difficulty else (200,200,200)
+                draw_text_center(screen, level, font_medium, color, y + idx*40)
+        elif menu_stage == 1:
+            draw_text_center(screen, "Select Number of AI Agents:", font_medium, (255,255,255), y)
+            y += 50
+            for idx, num in enumerate(ai_options):
+                color = (255,255,0) if idx == selected_ai else (200,200,200)
+                draw_text_center(screen, f"{num} AI", font_medium, color, y + idx*40)
 
         pygame.display.flip()
 
-        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mouse_pos = event.pos
-                if restart_rect.collidepoint(mouse_pos):
-                    return True  # Restart game
-                elif exit_rect.collidepoint(mouse_pos):
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    if menu_stage == 0:
+                        selected_difficulty = (selected_difficulty + 1) % len(difficulty_levels)
+                    else:
+                        selected_ai = (selected_ai + 1) % len(ai_options)
+                if event.key == pygame.K_UP:
+                    if menu_stage == 0:
+                        selected_difficulty = (selected_difficulty - 1) % len(difficulty_levels)
+                    else:
+                        selected_ai = (selected_ai - 1) % len(ai_options)
+                if event.key == pygame.K_RETURN:
+                    if menu_stage == 0:
+                        menu_stage = 1
+                    else:
+                        return difficulty_levels[selected_difficulty], ai_options[selected_ai]
+
+        clock.tick(30)
+
+def game_over_screen(screen, human, ai_list, env):
+    clock = pygame.time.Clock()
+    font_large = pygame.font.SysFont(FONT_NAME, 50)
+    font_medium = pygame.font.SysFont(FONT_NAME, 36)
+
+    while True:
+        screen.fill((0,0,0))
+        y = 80
+        draw_text_center(screen, "Game Over!", font_large, (255,0,0), y)
+        y += 80
+        draw_text_center(screen, f"Human: {human.score}", font_medium, human.color, y)
+        y += 50
+        colors = [(200,0,0),(0,0,200),(200,0,200)]
+        for idx, a in enumerate(ai_list):
+            draw_text_center(screen, f"AI{idx+1}: {a.score}", font_medium, colors[idx%len(colors)], y)
+            y += 40
+        scores = [(human.score, "Human")] + [(a.score, f"AI{idx+1}") for idx, a in enumerate(ai_list)]
+        winner = max(scores, key=lambda x: x[0])
+        y += 20
+        draw_text_center(screen, f"Winner: {winner[1]}", font_medium, (255,255,0), y)
+        y += 80
+        draw_text_center(screen, "Press R to Restart or Q to Quit", font_medium, (255,255,255), y)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    return True  # restart
+                if event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
-
         clock.tick(30)
 
 def main():
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Cognitive MAS Snake Arena (Rational + Complex Systems)")
-    clock = pygame.time.Clock()
 
-    font_large = pygame.font.SysFont(FONT_NAME, 36)
+    restart_game = True
+    while restart_game:
+        difficulty, num_ai = start_menu(screen)
 
-    while True:  # Loop for restarting the game
-        # -------------------------
-        # Create agents
-        # -------------------------
+        # set FPS based on difficulty
+        fps = BASE_FPS
+        if difficulty == 'Easy':
+            level_up_score = 10
+            fps_increment = 1
+        elif difficulty == 'Medium':
+            level_up_score = 8
+            fps_increment = 2
+        else:
+            level_up_score = 5
+            fps_increment = 3
+
+        # create agents
         human = HumanAgent(0, (5,5))
-        ai_list = [
-            CognitiveAIAgent(1, (15,15)),
-            CognitiveAIAgent(2, (10,10))
-        ]
+        ai_list = [CognitiveAIAgent(i+1, (15+i*2,15+i*2)) for i in range(num_ai)]
         env = Environment(human, ai_list, seed=None)
 
         level = 1
-        fps = BASE_FPS
-        last_level = level
+        last_level = 1
         running = True
+        clock = pygame.time.Clock()
 
         while running:
-            # -------------------------
-            # Event handling
-            # -------------------------
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -115,60 +152,49 @@ def main():
                 else:
                     human.handle_event(event)
 
-            # -------------------------
-            # Step environment
-            # -------------------------
             env.step(level)
 
-            # -------------------------
-            # Level up by highest score
-            # -------------------------
+            # Level up by human + AI scores
             highest = max([human.score] + [a.score for a in ai_list])
-            target_level = 1 + highest // LEVEL_UP_SCORE
+            target_level = 1 + highest // level_up_score
             if target_level > level:
-                level = target_level
-                fps += FPS_INCREMENT
+                level += 1  # step by step
+                fps += fps_increment
                 safe_play(env.levelup_sound)
-
-                # Dynamic spawning based on level
                 if level == 2:
-                    env.spawn_obstacles(4)
+                    env.spawn_obstacles(2)
                 elif level == 3:
-                    env.spawn_obstacles(6)
-                    env.spawn_food(2)
+                    env.spawn_obstacles(3)
+                    env.spawn_food(1)
                 elif level >= 4:
-                    env.spawn_obstacles(8)
-                    env.spawn_food(3)
+                    env.spawn_obstacles(4)
+                    env.spawn_food(2)
 
-            # -------------------------
-            # Draw everything
-            # -------------------------
+            # draw
             env.draw(screen, level)
-            if level != last_level:
-                txt = font_large.render(f"Level {level}", True, (255,255,0))
-                screen.blit(txt, (WINDOW_WIDTH//2 - txt.get_width()//2, 20))
-                last_level = level
-
             pygame.display.flip()
 
             # -------------------------
-            # End game if human dead
+            # End game conditions
             # -------------------------
             if not human.alive:
                 running = False
                 break
 
+            # Stop if only 2 snakes total and any dead
+            if len(ai_list) + 1 == 2:  # human + 1 AI
+                if not human.alive or any(not a.alive for a in ai_list):
+                    running = False
+                    break
+            else:
+                # More than 2 snakes: stop only if human dead
+                if not human.alive:
+                    running = False
+                    break
+
             clock.tick(fps)
 
-        # -------------------------
-        # Game Over Screen
-        # -------------------------
-        safe_play(env.gameover_sound)
-        restart = game_over_screen(screen, font_large, human, ai_list, env)
-        if not restart:
-            break
-
-        # Save event log
+        restart_game = game_over_screen(screen, human, ai_list, env)
         env.save_event_log(EVENT_LOG_PATH)
 
 if __name__ == "__main__":

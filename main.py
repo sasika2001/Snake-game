@@ -37,7 +37,7 @@ def start_menu(screen):
     while running:
         screen.fill((20, 20, 40))
         y = 100
-        draw_text_center(screen, "Cognitive MAS Snake Arena", font_large, (255,255,0), y)
+        draw_text_center(screen, "Snake Arena", font_large, (255,255,0), y)
         y += 100
 
         if menu_stage == 0:

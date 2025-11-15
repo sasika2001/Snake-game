@@ -1,30 +1,16 @@
 step,kind,action,agent,pos,extra
-0,spawn,food_spawned,,"(13, 11)",{'type': 'normal'}
-0,spawn,food_spawned,,"(4, 7)",{'type': 'normal'}
-0,spawn,food_spawned,,"(19, 19)",{'type': 'normal'}
-6,eat,food_eaten,1,"(13, 11)",{'type': 'normal'}
-6,spawn,food_spawned,,"(11, 11)",{'type': 'normal'}
-8,eat,food_eaten,1,"(11, 11)",{'type': 'normal'}
-8,spawn,food_spawned,,"(6, 12)",{'type': 'normal'}
-14,eat,food_eaten,1,"(6, 12)",{'type': 'normal'}
-14,spawn,food_spawned,,"(0, 15)",{'type': 'normal'}
-17,eat,food_eaten,0,"(4, 7)",{'type': 'normal'}
-17,spawn,food_spawned,,"(15, 19)",{'type': 'normal'}
-30,eat,food_eaten,1,"(15, 19)",{'type': 'normal'}
-30,spawn,food_spawned,,"(15, 4)",{'type': 'bonus'}
-30,spawn,obstacle_spawned,,"(11, 15)",None
-30,spawn,obstacle_spawned,,"(8, 16)",None
-34,eat,food_eaten,1,"(19, 19)",{'type': 'normal'}
-34,spawn,food_spawned,,"(2, 2)",{'type': 'poison'}
-40,move,obstacle_moved,,"{'from': (11, 15), 'to': (10, 15)}",None
-40,move,obstacle_moved,,"{'from': (8, 16), 'to': (7, 17)}",None
-44,eat,food_eaten,0,"(2, 2)",{'type': 'poison'}
-44,spawn,food_spawned,,"(5, 4)",{'type': 'normal'}
-50,move,obstacle_moved,,"{'from': (10, 15), 'to': (11, 16)}",None
-50,move,obstacle_moved,,"{'from': (7, 17), 'to': (7, 17)}",None
-53,eat,food_eaten,1,"(15, 4)",{'type': 'bonus'}
-53,spawn,food_spawned,,"(8, 15)",{'type': 'normal'}
-53,spawn,obstacle_spawned,,"(17, 10)",None
-53,spawn,obstacle_spawned,,"(5, 6)",None
-53,spawn,obstacle_spawned,,"(4, 16)",None
-53,spawn,food_spawned,,"(19, 11)",{'type': 'normal'}
+0,spawn,food_spawned,,"(2, 17)",{'type': 'poison'}
+0,spawn,food_spawned,,"(13, 15)",{'type': 'normal'}
+0,spawn,food_spawned,,"(16, 17)",{'type': 'normal'}
+2,eat,food_eaten,1,"(13, 15)",{'type': 'normal'}
+2,spawn,food_spawned,,"(16, 16)",{'type': 'normal'}
+6,eat,food_eaten,1,"(16, 16)",{'type': 'normal'}
+6,spawn,food_spawned,,"(10, 18)",{'type': 'normal'}
+7,eat,food_eaten,1,"(16, 17)",{'type': 'normal'}
+7,spawn,food_spawned,,"(5, 11)",{'type': 'normal'}
+7,spawn,obstacle_spawned,,"(17, 0)",None
+7,spawn,obstacle_spawned,,"(19, 19)",None
+10,move,obstacle_moved,,"{'from': (17, 0), 'to': (16, 0)}",None
+10,move,obstacle_moved,,"{'from': (19, 19), 'to': (19, 18)}",None
+14,eat,food_eaten,1,"(10, 18)",{'type': 'normal'}
+14,spawn,food_spawned,,"(8, 13)",{'type': 'normal'}

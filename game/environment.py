@@ -1,6 +1,7 @@
 # game/environment.py
 import pygame, random, math, csv, os
 from core.config import GRID_SIZE, CELL_SIZE, FOOD_PULSE_SPEED, FOOD_PULSE_AMPLITUDE, FONT_NAME, BUTTERFLY_MODE, BUTTERFLY_STEP, EVENT_LOG_PATH
+from agents.food_and_obstacle_agents import FoodAgent, BonusAgent, PoisonAgent, ObstacleAgent
 
 def load_sound(path):
     try:
@@ -14,164 +15,177 @@ class Environment:
     def __init__(self, human, ai_list, seed=None):
         self.human = human
         self.ai_list = ai_list
-        self.food_positions = []
-        self.food_types = {}
-        self.obstacles = []
+        self.food_agents = []
+        self.obstacle_agents = []
         self.pulse_offset = 0.0
         self.font = pygame.font.SysFont(FONT_NAME, 18)
         self.eat_sound = load_sound('assets/sounds/eat.wav')
         self.levelup_sound = load_sound('assets/sounds/levelup.wav')
         self.gameover_sound = load_sound('assets/sounds/gameover.wav')
-        # message bus / shared dangers
         self.shared_dangers = set()
-        # event log list of tuples
         self.event_log = []
         self.step_count = 0
         self.seed = seed
         if seed is not None:
             random.seed(seed)
         self.spawn_food(5)
-        # ensure events directory exists
         if not os.path.exists('events'):
             os.makedirs('events')
 
+    # -------------------------
+    # Event log & broadcast
+    # -------------------------
     def log_event(self, kind, action, agent_id, pos=None, extra=None):
-        # simple structured event: step,kind,action,agent,pos,extra
         self.event_log.append({'step': self.step_count, 'kind': kind, 'action': action, 'agent': agent_id, 'pos': pos, 'extra': extra})
 
     def broadcast(self, msg):
-        # handle broadcast messages (simple)
         if msg['type'] == 'danger':
             self.shared_dangers.add(tuple(msg['pos']))
-            # log broadcast
             self.log_event('broadcast', 'danger_broadcast', msg.get('from'), tuple(msg.get('pos')))
 
+    # -------------------------
+    # Spawning
+    # -------------------------
     def spawn_food(self, count=1):
         for _ in range(count):
             tries = 0
             while True:
                 p = (random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1))
                 if p not in self.all_occupied():
-                    self.food_positions.append(p)
                     r = random.random()
-                    if r < 0.80:
-                        self.food_types[p] = 'normal'
+                    if r < 0.8:
+                        self.food_agents.append(FoodAgent(p))
+                        ftype = 'normal'
                     elif r < 0.95:
-                        self.food_types[p] = 'bonus'
+                        self.food_agents.append(BonusAgent(p))
+                        ftype = 'bonus'
                     else:
-                        self.food_types[p] = 'poison'
-                    self.log_event('spawn','food_spawned', None, p, extra={'type': self.food_types[p]})
+                        self.food_agents.append(PoisonAgent(p))
+                        ftype = 'poison'
+                    self.log_event('spawn','food_spawned', None, p, extra={'type': ftype})
                     break
                 tries += 1
-                if tries > 200:
-                    break
+                if tries > 200: break
 
     def spawn_obstacles(self, count=3):
-        added = 0; attempts = 0
+        added = 0
+        attempts = 0
         while added < count and attempts < 300:
             p = (random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1))
             if p not in self.all_occupied():
-                self.obstacles.append(p)
+                self.obstacle_agents.append(ObstacleAgent(p))
                 added += 1
                 self.log_event('spawn','obstacle_spawned', None, p)
             attempts += 1
 
+    # -------------------------
+    # Helpers
+    # -------------------------
     def all_occupied(self):
         occ = []
         occ += list(self.human.body)
         for a in self.ai_list:
             occ += list(a.body)
-        occ += list(self.food_positions)
-        occ += self.obstacles
+        for o in self.obstacle_agents:
+            occ.append(o.position)
+        for f in self.food_agents:
+            occ.append(f.position)
         return occ
 
+    # -------------------------
+    # Step function
+    # -------------------------
     def step(self, level):
         self.step_count += 1
         self.pulse_offset += 1.0 / FOOD_PULSE_SPEED
 
-        # optional butterfly perturbation: small random change at predetermined step
+        # butterfly perturbation
         if BUTTERFLY_MODE and self.step_count == BUTTERFLY_STEP:
-            # tiny perturbation: move one food spawn by one cell
-            if self.food_positions:
-                i = random.randrange(len(self.food_positions))
-                old = self.food_positions[i]
+            if self.food_agents:
+                i = random.randrange(len(self.food_agents))
+                old = self.food_agents[i].position
                 new = (max(0, min(GRID_SIZE-1, old[0] + random.choice([-1,0,1]))),
                        max(0, min(GRID_SIZE-1, old[1] + random.choice([-1,0,1]))))
-                self.food_positions[i] = new
-                # update type mapping
-                t = self.food_types.pop(old, 'normal')
-                self.food_types[new] = t
+                self.food_agents[i].position = new
                 self.log_event('butterfly', 'food_perturb', None, {'from': old, 'to': new})
 
-        # adjust AI cognitive params by level
+        # AI param adjustments
         for ai in self.ai_list:
             ai.sensing_range = min(GRID_SIZE, ai.sensing_range + (1 if level > 1 else 0))
             ai.smartness = 1 + max(0, level - 1)
 
         # human acts
-        self.human.step(self.food_positions, self.food_types, self.obstacles)
+        self.human.step([f.position for f in self.food_agents], {f.position: f.type for f in self.food_agents}, [o.position for o in self.obstacle_agents])
+
         # AI acts
         for ai in self.ai_list:
-            events = ai.step(self.food_positions, self.food_types, [self.human] + [x for x in self.ai_list if x is not ai], self.obstacles, self)
+            events = ai.step([f.position for f in self.food_agents],
+                             {f.position: f.type for f in self.food_agents},
+                             [self.human] + [x for x in self.ai_list if x is not ai],
+                             [o.position for o in self.obstacle_agents], self)
             for e in events:
-                if e[0] == 'ate':
-                    # environment handles removal and sound in centralized way
-                    pass
+                pass
 
-        # centralized eat handling and sound (ensures sound played once)
+        # centralized eating
         eaten_positions = []
         for agent in [self.human] + self.ai_list:
             head = agent.body[0] if agent.alive else None
-            if head and head in self.food_positions:
-                eaten_positions.append((agent.id, head, self.food_types.get(head, 'normal')))
-        for agent_id, pos, ftype in eaten_positions:
-            # remove food and play sound
-            if pos in self.food_positions:
-                self.food_positions.remove(pos)
-            if pos in self.food_types:
-                self.food_types.pop(pos, None)
+            if head:
+                for f in self.food_agents:
+                    if head == f.position:
+                        eaten_positions.append((agent, f))
+                        break
+        for agent, food in eaten_positions:
+            if food in self.food_agents:
+                self.food_agents.remove(food)
             if self.eat_sound:
                 try: self.eat_sound.play()
                 except: pass
-            self.log_event('eat', 'food_eaten', agent_id, pos, extra={'type': ftype})
+            agent.score += 3 if food.type=='bonus' else -2 if food.type=='poison' else 1
+            self.log_event('eat','food_eaten', agent.id, food.position, extra={'type': food.type})
 
         # respawn food if low
-        while len(self.food_positions) < 5:
+        while len(self.food_agents) < 5:
             self.spawn_food(1)
 
-        # move obstacles at high level -> increases complexity
+        # obstacles move dynamically at higher levels
         if level >= 3:
-            for i, (x, y) in enumerate(self.obstacles):
-                if random.random() < 0.07:
-                    nx = max(0, min(GRID_SIZE-1, x + random.choice([-1,0,1])))
-                    ny = max(0, min(GRID_SIZE-1, y + random.choice([-1,0,1])))
-                    if (nx, ny) not in self.all_occupied():
-                        old = self.obstacles[i]
-                        self.obstacles[i] = (nx, ny)
-                        self.log_event('move', 'obstacle_moved', None, {'from': old, 'to': (nx, ny)})
+            for obs in self.obstacle_agents:
+                old = obs.position
+                obs.step()
+                self.log_event('move', 'obstacle_moved', None, {'from': old, 'to': obs.position})
 
+    # -------------------------
+    # Draw function
+    # -------------------------
     def draw(self, screen, level):
         screen.fill((6,6,20))
-        for p in list(self.food_positions):
-            fx = p[0]*CELL_SIZE + CELL_SIZE//2
-            fy = p[1]*CELL_SIZE + CELL_SIZE//2
+
+        # draw food
+        for f in self.food_agents:
+            fx = f.position[0]*CELL_SIZE + CELL_SIZE//2
+            fy = f.position[1]*CELL_SIZE + CELL_SIZE//2
             base = CELL_SIZE//2 - 4
             pulse = int((1 + 0.5 * (1 + math.sin(self.pulse_offset))) * (FOOD_PULSE_AMPLITUDE/2))
             size = max(6, base + pulse)
-            color = (255,255,0)
-            ftype = self.food_types.get(p,'normal')
-            if ftype == 'bonus': color = (0,255,255)
-            if ftype == 'poison': color = (255,0,255)
+            color = (255,255,0) if f.type=='normal' else (0,255,255) if f.type=='bonus' else (255,0,255)
             pygame.draw.circle(screen, color, (fx, fy), size//2)
+
+        # draw obstacles
         if level >= 2:
-            for o in self.obstacles:
-                pygame.draw.rect(screen, (120,120,120), (o[0]*CELL_SIZE, o[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+            for o in self.obstacle_agents:
+                pygame.draw.rect(screen, (120,120,120), (o.position[0]*CELL_SIZE, o.position[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+        # draw human
         for seg in self.human.body:
             pygame.draw.rect(screen, self.human.color, (seg[0]*CELL_SIZE, seg[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+        # draw AI
         colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
         for idx, a in enumerate(self.ai_list):
             for seg in a.body:
                 pygame.draw.rect(screen, colors[idx%len(colors)], (seg[0]*CELL_SIZE, seg[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
         # HUD
         y = 6
         txt = self.font.render(f"Level: {level}", True, (255,255,255))
@@ -185,8 +199,10 @@ class Environment:
             screen.blit(s, (8, y))
             y += 18
 
+    # -------------------------
+    # Save event log
+    # -------------------------
     def save_event_log(self, path=EVENT_LOG_PATH):
-        # write event_log to CSV for analysis (append if exists)
         if not self.event_log:
             return
         with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -194,7 +210,6 @@ class Environment:
             writer = csv.DictWriter(f, fieldnames=keys)
             writer.writeheader()
             for ev in self.event_log:
-                # serialize pos and extra to simple strings
                 row = {k: ev.get(k) for k in keys}
                 row['pos'] = str(ev.get('pos'))
                 row['extra'] = str(ev.get('extra'))

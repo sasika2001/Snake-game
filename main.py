@@ -13,15 +13,19 @@ except Exception:
 
 def safe_play(sound):
     if sound:
-        try: sound.play()
-        except: pass
+        try:
+            sound.play()
+        except:
+            pass
 
 def main():
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Cognitive MAS Snake Arena (Rational + Complex Systems)")
     clock = pygame.time.Clock()
 
-    # create agents
+    # -------------------------
+    # Create agents
+    # -------------------------
     human = HumanAgent(0, (5,5))
     ai_list = [
         CognitiveAIAgent(1, (15,15)),
@@ -36,31 +40,43 @@ def main():
     running = True
 
     while running:
+        # -------------------------
+        # Event handling
+        # -------------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             else:
                 human.handle_event(event)
 
-        # step environment
+        # -------------------------
+        # Step environment
+        # -------------------------
         env.step(level)
 
-        # level up by highest score
+        # -------------------------
+        # Level up by highest score
+        # -------------------------
         highest = max([human.score] + [a.score for a in ai_list])
         target_level = 1 + highest // LEVEL_UP_SCORE
         if target_level > level:
             level = target_level
             fps += FPS_INCREMENT
             safe_play(env.levelup_sound)
+
+            # Dynamic spawning based on level
             if level == 2:
                 env.spawn_obstacles(4)
             elif level == 3:
                 env.spawn_obstacles(6)
+                env.spawn_food(2)
             elif level >= 4:
                 env.spawn_obstacles(8)
-                env.spawn_food(2)
+                env.spawn_food(3)
 
-        # draw
+        # -------------------------
+        # Draw everything
+        # -------------------------
         env.draw(screen, level)
         if level != last_level:
             txt = font_large.render(f"Level {level}", True, (255,255,0))
@@ -69,32 +85,37 @@ def main():
 
         pygame.display.flip()
 
-        # END GAME: human dead
+        # -------------------------
+        # End game if human dead
+        # -------------------------
         if not human.alive:
             running = False
             break
 
         clock.tick(fps)
 
-    # Game Over - Show final scores
+    # -------------------------
+    # Game Over - Display Scores
+    # -------------------------
     screen.fill((0,0,0))
     y = 50
     title = font_large.render("Game Over! Final Scores:", True, (255,255,255))
     screen.blit(title, (WINDOW_WIDTH//2 - title.get_width()//2, y))
     y += 50
 
-    # display human score
+    # Human score
     scr = font_large.render(f"Human: {human.score}", True, human.color)
     screen.blit(scr, (WINDOW_WIDTH//2 - scr.get_width()//2, y))
     y += 40
 
+    # AI scores
     colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
     for idx, a in enumerate(ai_list):
         s = font_large.render(f"AI{idx+1}: {a.score}", True, colors[idx%len(colors)])
         screen.blit(s, (WINDOW_WIDTH//2 - s.get_width()//2, y))
         y += 40
 
-    # determine winner
+    # Determine winner
     scores = [(human.score, "Human")] + [(a.score, f"AI{idx+1}") for idx, a in enumerate(ai_list)]
     winner = max(scores, key=lambda x: x[0])
     winner_txt = font_large.render(f"Winner: {winner[1]}", True, (255,255,0))
@@ -104,7 +125,7 @@ def main():
     safe_play(env.gameover_sound)
     pygame.time.delay(5000)
 
-    # save event log
+    # Save event log
     env.save_event_log(EVENT_LOG_PATH)
     pygame.quit()
     sys.exit()

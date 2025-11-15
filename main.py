@@ -18,117 +18,158 @@ def safe_play(sound):
         except:
             pass
 
+def draw_button(screen, rect, text, font, color_bg, color_text):
+    pygame.draw.rect(screen, color_bg, rect)
+    txt_surf = font.render(text, True, color_text)
+    txt_rect = txt_surf.get_rect(center=rect.center)
+    screen.blit(txt_surf, txt_rect)
+
+def game_over_screen(screen, font_large, human, ai_list, env):
+    clock = pygame.time.Clock()
+    running = True
+
+    # Prepare scores and winner
+    scores = [(human.score, "Human")] + [(a.score, f"AI{idx+1}") for idx, a in enumerate(ai_list)]
+    winner = max(scores, key=lambda x: x[0])
+
+    # Button rects
+    restart_rect = pygame.Rect(WINDOW_WIDTH//2 - 80, WINDOW_HEIGHT//2 + 50, 160, 50)
+    exit_rect = pygame.Rect(WINDOW_WIDTH//2 - 80, WINDOW_HEIGHT//2 + 120, 160, 50)
+
+    while running:
+        screen.fill((0,0,0))
+        y = 50
+        title = font_large.render("Game Over! Final Scores:", True, (255,255,255))
+        screen.blit(title, (WINDOW_WIDTH//2 - title.get_width()//2, y))
+        y += 50
+
+        # Human score
+        scr = font_large.render(f"Human: {human.score}", True, human.color)
+        screen.blit(scr, (WINDOW_WIDTH//2 - scr.get_width()//2, y))
+        y += 40
+
+        # AI scores
+        colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
+        for idx, a in enumerate(ai_list):
+            s = font_large.render(f"AI{idx+1}: {a.score}", True, colors[idx%len(colors)])
+            screen.blit(s, (WINDOW_WIDTH//2 - s.get_width()//2, y))
+            y += 40
+
+        # Winner
+        winner_txt = font_large.render(f"Winner: {winner[1]}", True, (255,255,0))
+        screen.blit(winner_txt, (WINDOW_WIDTH//2 - winner_txt.get_width()//2, y+20))
+
+        # Draw buttons
+        draw_button(screen, restart_rect, "Restart", font_large, (0,128,0), (255,255,255))
+        draw_button(screen, exit_rect, "Exit", font_large, (128,0,0), (255,255,255))
+
+        pygame.display.flip()
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_pos = event.pos
+                if restart_rect.collidepoint(mouse_pos):
+                    return True  # Restart game
+                elif exit_rect.collidepoint(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+        clock.tick(30)
+
 def main():
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Cognitive MAS Snake Arena (Rational + Complex Systems)")
     clock = pygame.time.Clock()
 
-    # -------------------------
-    # Create agents
-    # -------------------------
-    human = HumanAgent(0, (5,5))
-    ai_list = [
-        CognitiveAIAgent(1, (15,15)),
-        CognitiveAIAgent(2, (10,10))
-    ]
-    env = Environment(human, ai_list, seed=None)
-
-    level = 1
-    fps = BASE_FPS
     font_large = pygame.font.SysFont(FONT_NAME, 36)
-    last_level = level
-    running = True
 
-    while running:
+    while True:  # Loop for restarting the game
         # -------------------------
-        # Event handling
+        # Create agents
         # -------------------------
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        human = HumanAgent(0, (5,5))
+        ai_list = [
+            CognitiveAIAgent(1, (15,15)),
+            CognitiveAIAgent(2, (10,10))
+        ]
+        env = Environment(human, ai_list, seed=None)
+
+        level = 1
+        fps = BASE_FPS
+        last_level = level
+        running = True
+
+        while running:
+            # -------------------------
+            # Event handling
+            # -------------------------
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                else:
+                    human.handle_event(event)
+
+            # -------------------------
+            # Step environment
+            # -------------------------
+            env.step(level)
+
+            # -------------------------
+            # Level up by highest score
+            # -------------------------
+            highest = max([human.score] + [a.score for a in ai_list])
+            target_level = 1 + highest // LEVEL_UP_SCORE
+            if target_level > level:
+                level = target_level
+                fps += FPS_INCREMENT
+                safe_play(env.levelup_sound)
+
+                # Dynamic spawning based on level
+                if level == 2:
+                    env.spawn_obstacles(4)
+                elif level == 3:
+                    env.spawn_obstacles(6)
+                    env.spawn_food(2)
+                elif level >= 4:
+                    env.spawn_obstacles(8)
+                    env.spawn_food(3)
+
+            # -------------------------
+            # Draw everything
+            # -------------------------
+            env.draw(screen, level)
+            if level != last_level:
+                txt = font_large.render(f"Level {level}", True, (255,255,0))
+                screen.blit(txt, (WINDOW_WIDTH//2 - txt.get_width()//2, 20))
+                last_level = level
+
+            pygame.display.flip()
+
+            # -------------------------
+            # End game if human dead
+            # -------------------------
+            if not human.alive:
                 running = False
-            else:
-                human.handle_event(event)
+                break
+
+            clock.tick(fps)
 
         # -------------------------
-        # Step environment
+        # Game Over Screen
         # -------------------------
-        env.step(level)
-
-        # -------------------------
-        # Level up by highest score
-        # -------------------------
-        highest = max([human.score] + [a.score for a in ai_list])
-        target_level = 1 + highest // LEVEL_UP_SCORE
-        if target_level > level:
-            level = target_level
-            fps += FPS_INCREMENT
-            safe_play(env.levelup_sound)
-
-            # Dynamic spawning based on level
-            if level == 2:
-                env.spawn_obstacles(4)
-            elif level == 3:
-                env.spawn_obstacles(6)
-                env.spawn_food(2)
-            elif level >= 4:
-                env.spawn_obstacles(8)
-                env.spawn_food(3)
-
-        # -------------------------
-        # Draw everything
-        # -------------------------
-        env.draw(screen, level)
-        if level != last_level:
-            txt = font_large.render(f"Level {level}", True, (255,255,0))
-            screen.blit(txt, (WINDOW_WIDTH//2 - txt.get_width()//2, 20))
-            last_level = level
-
-        pygame.display.flip()
-
-        # -------------------------
-        # End game if human dead
-        # -------------------------
-        if not human.alive:
-            running = False
+        safe_play(env.gameover_sound)
+        restart = game_over_screen(screen, font_large, human, ai_list, env)
+        if not restart:
             break
 
-        clock.tick(fps)
-
-    # -------------------------
-    # Game Over - Display Scores
-    # -------------------------
-    screen.fill((0,0,0))
-    y = 50
-    title = font_large.render("Game Over! Final Scores:", True, (255,255,255))
-    screen.blit(title, (WINDOW_WIDTH//2 - title.get_width()//2, y))
-    y += 50
-
-    # Human score
-    scr = font_large.render(f"Human: {human.score}", True, human.color)
-    screen.blit(scr, (WINDOW_WIDTH//2 - scr.get_width()//2, y))
-    y += 40
-
-    # AI scores
-    colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
-    for idx, a in enumerate(ai_list):
-        s = font_large.render(f"AI{idx+1}: {a.score}", True, colors[idx%len(colors)])
-        screen.blit(s, (WINDOW_WIDTH//2 - s.get_width()//2, y))
-        y += 40
-
-    # Determine winner
-    scores = [(human.score, "Human")] + [(a.score, f"AI{idx+1}") for idx, a in enumerate(ai_list)]
-    winner = max(scores, key=lambda x: x[0])
-    winner_txt = font_large.render(f"Winner: {winner[1]}", True, (255,255,0))
-    screen.blit(winner_txt, (WINDOW_WIDTH//2 - winner_txt.get_width()//2, y+20))
-
-    pygame.display.flip()
-    safe_play(env.gameover_sound)
-    pygame.time.delay(5000)
-
-    # Save event log
-    env.save_event_log(EVENT_LOG_PATH)
-    pygame.quit()
-    sys.exit()
+        # Save event log
+        env.save_event_log(EVENT_LOG_PATH)
 
 if __name__ == "__main__":
     main()

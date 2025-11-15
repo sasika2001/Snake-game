@@ -28,7 +28,9 @@ class Environment:
         self.seed = seed
         if seed is not None:
             random.seed(seed)
-        self.spawn_food(5)
+
+        # Spawn initial foods (max 3)
+        self.spawn_food(3)
         if not os.path.exists('events'):
             os.makedirs('events')
 
@@ -53,14 +55,14 @@ class Environment:
                 p = (random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1))
                 if p not in self.all_occupied():
                     r = random.random()
-                    if r < 0.8:
-                        self.food_agents.append(FoodAgent(p))
+                    if r < 0.7:
+                        self.food_agents.append(FoodAgent(p))  # normal food, stays until eaten
                         ftype = 'normal'
-                    elif r < 0.95:
-                        self.food_agents.append(BonusAgent(p))
+                    elif r < 0.85:
+                        self.food_agents.append(BonusAgent(p))  # bonus food, appears temporarily
                         ftype = 'bonus'
                     else:
-                        self.food_agents.append(PoisonAgent(p))
+                        self.food_agents.append(PoisonAgent(p))  # poison food, stays until eaten
                         ftype = 'poison'
                     self.log_event('spawn','food_spawned', None, p, extra={'type': ftype})
                     break
@@ -99,19 +101,18 @@ class Environment:
         self.step_count += 1
         self.pulse_offset += 1.0 / FOOD_PULSE_SPEED
 
-        # butterfly perturbation
-        if BUTTERFLY_MODE and self.step_count == BUTTERFLY_STEP:
-            if self.food_agents:
-                i = random.randrange(len(self.food_agents))
-                old = self.food_agents[i].position
-                new = (max(0, min(GRID_SIZE-1, old[0] + random.choice([-1,0,1]))),
-                       max(0, min(GRID_SIZE-1, old[1] + random.choice([-1,0,1]))))
-                self.food_agents[i].position = new
-                self.log_event('butterfly', 'food_perturb', None, {'from': old, 'to': new})
+        # Handle bonus food expiration (appears for limited steps)
+        for f in self.food_agents[:]:
+            if f.type == 'bonus' and hasattr(f, 'ttl'):
+                f.ttl -= 1
+                if f.ttl <= 0:
+                    self.food_agents.remove(f)
+            elif f.type == 'bonus' and not hasattr(f, 'ttl'):
+                f.ttl = 200  # bonus food lasts 200 steps (~few seconds)
 
         # AI param adjustments
         for ai in self.ai_list:
-            ai.sensing_range = min(GRID_SIZE, ai.sensing_range + (1 if level > 1 else 0))
+            ai.sensing_range = min(GRID_SIZE, getattr(ai, 'sensing_range', 5) + (1 if level > 1 else 0))
             ai.smartness = 1 + max(0, level - 1)
 
         # human acts
@@ -144,15 +145,15 @@ class Environment:
             agent.score += 3 if food.type=='bonus' else -2 if food.type=='poison' else 1
             self.log_event('eat','food_eaten', agent.id, food.position, extra={'type': food.type})
 
-        # respawn food if low
-        while len(self.food_agents) < 5:
+        # Respawn normal food if less than 3
+        while len([f for f in self.food_agents if f.type=='normal']) < 1:
             self.spawn_food(1)
 
-        # obstacles move dynamically at higher levels
-        if level >= 3:
+        # Obstacles move very slowly (random 1 step every 50 steps)
+        if self.step_count % 50 == 0:
             for obs in self.obstacle_agents:
                 old = obs.position
-                obs.step()
+                obs.step()  # small move
                 self.log_event('move', 'obstacle_moved', None, {'from': old, 'to': obs.position})
 
     # -------------------------

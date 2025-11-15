@@ -170,27 +170,21 @@ def main():
                     env.spawn_obstacles(4)
                     env.spawn_food(2)
 
-            # draw
+            # Draw environment
             env.draw(screen, level)
             pygame.display.flip()
 
             # -------------------------
-            # End game conditions
+            # Game over logic
             # -------------------------
+            alive_ai = [a for a in ai_list if a.alive]
+            total_alive = [human] + alive_ai
+
             if not human.alive:
                 running = False
-                break
-
-            # Stop if only 2 snakes total and any dead
-            if len(ai_list) + 1 == 2:  # human + 1 AI
-                if not human.alive or any(not a.alive for a in ai_list):
-                    running = False
-                    break
-            else:
-                # More than 2 snakes: stop only if human dead
-                if not human.alive:
-                    running = False
-                    break
+            elif len(total_alive) == 2 and len(alive_ai) == 0:
+                running = False  # Only 2 snakes and AI dead
+            # Dead AI snakes are invisible but game continues if more than 2 snakes
 
             clock.tick(fps)
 

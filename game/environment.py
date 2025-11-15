@@ -1,6 +1,6 @@
 # game/environment.py
 import pygame, random, math, csv, os
-from core.config import GRID_SIZE, CELL_SIZE, FOOD_PULSE_SPEED, FOOD_PULSE_AMPLITUDE, FONT_NAME, BUTTERFLY_MODE, BUTTERFLY_STEP, EVENT_LOG_PATH
+from core.config import GRID_SIZE, CELL_SIZE, FOOD_PULSE_SPEED, FOOD_PULSE_AMPLITUDE, FONT_NAME, EVENT_LOG_PATH
 from agents.food_and_obstacle_agents import FoodAgent, BonusAgent, PoisonAgent, ObstacleAgent
 
 def load_sound(path):
@@ -28,11 +28,11 @@ class Environment:
         self.seed = seed
         if seed is not None:
             random.seed(seed)
-
-        # Spawn initial foods (max 3)
-        self.spawn_food(3)
+        self.spawn_food_initial()
         if not os.path.exists('events'):
             os.makedirs('events')
+
+        self.obstacle_move_counter = 0  # slow obstacle movement
 
     # -------------------------
     # Event log & broadcast
@@ -48,6 +48,12 @@ class Environment:
     # -------------------------
     # Spawning
     # -------------------------
+    def spawn_food_initial(self):
+        """Spawn 3 foods at the start (mix of normal, bonus, poison)"""
+        self.food_agents = []
+        while len(self.food_agents) < 3:
+            self.spawn_food(1)
+
     def spawn_food(self, count=1):
         for _ in range(count):
             tries = 0
@@ -56,15 +62,17 @@ class Environment:
                 if p not in self.all_occupied():
                     r = random.random()
                     if r < 0.7:
-                        self.food_agents.append(FoodAgent(p))  # normal food, stays until eaten
-                        ftype = 'normal'
-                    elif r < 0.85:
-                        self.food_agents.append(BonusAgent(p))  # bonus food, appears temporarily
-                        ftype = 'bonus'
+                        f = FoodAgent(p)
+                        f.type = 'normal'
+                    elif r < 0.9:
+                        f = BonusAgent(p)
+                        f.type = 'bonus'
+                        f.lifetime = 300  # bonus disappears after 300 steps
                     else:
-                        self.food_agents.append(PoisonAgent(p))  # poison food, stays until eaten
-                        ftype = 'poison'
-                    self.log_event('spawn','food_spawned', None, p, extra={'type': ftype})
+                        f = PoisonAgent(p)
+                        f.type = 'poison'
+                    self.food_agents.append(f)
+                    self.log_event('spawn','food_spawned', None, p, extra={'type': f.type})
                     break
                 tries += 1
                 if tries > 200: break
@@ -101,20 +109,6 @@ class Environment:
         self.step_count += 1
         self.pulse_offset += 1.0 / FOOD_PULSE_SPEED
 
-        # Handle bonus food expiration (appears for limited steps)
-        for f in self.food_agents[:]:
-            if f.type == 'bonus' and hasattr(f, 'ttl'):
-                f.ttl -= 1
-                if f.ttl <= 0:
-                    self.food_agents.remove(f)
-            elif f.type == 'bonus' and not hasattr(f, 'ttl'):
-                f.ttl = 200  # bonus food lasts 200 steps (~few seconds)
-
-        # AI param adjustments
-        for ai in self.ai_list:
-            ai.sensing_range = min(GRID_SIZE, getattr(ai, 'sensing_range', 5) + (1 if level > 1 else 0))
-            ai.smartness = 1 + max(0, level - 1)
-
         # human acts
         self.human.step([f.position for f in self.food_agents], {f.position: f.type for f in self.food_agents}, [o.position for o in self.obstacle_agents])
 
@@ -145,15 +139,24 @@ class Environment:
             agent.score += 3 if food.type=='bonus' else -2 if food.type=='poison' else 1
             self.log_event('eat','food_eaten', agent.id, food.position, extra={'type': food.type})
 
-        # Respawn normal food if less than 3
-        while len([f for f in self.food_agents if f.type=='normal']) < 1:
+        # update bonus food lifetime
+        for f in self.food_agents[:]:
+            if f.type == 'bonus':
+                if hasattr(f, 'lifetime'):
+                    f.lifetime -= 1
+                    if f.lifetime <= 0:
+                        self.food_agents.remove(f)
+        # ensure max 3 foods
+        while len(self.food_agents) < 3:
             self.spawn_food(1)
 
-        # Obstacles move very slowly (random 1 step every 50 steps)
-        if self.step_count % 50 == 0:
+        # obstacles move slowly
+        self.obstacle_move_counter += 1
+        if self.obstacle_move_counter >= 10:  # move every 10 steps
+            self.obstacle_move_counter = 0
             for obs in self.obstacle_agents:
                 old = obs.position
-                obs.step()  # small move
+                obs.step()
                 self.log_event('move', 'obstacle_moved', None, {'from': old, 'to': obs.position})
 
     # -------------------------
@@ -172,7 +175,7 @@ class Environment:
             color = (255,255,0) if f.type=='normal' else (0,255,255) if f.type=='bonus' else (255,0,255)
             pygame.draw.circle(screen, color, (fx, fy), size//2)
 
-        # draw obstacles
+        # draw obstacles if level >=2
         if level >= 2:
             for o in self.obstacle_agents:
                 pygame.draw.rect(screen, (120,120,120), (o.position[0]*CELL_SIZE, o.position[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
@@ -181,11 +184,12 @@ class Environment:
         for seg in self.human.body:
             pygame.draw.rect(screen, self.human.color, (seg[0]*CELL_SIZE, seg[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
-        # draw AI
+        # draw alive AI snakes only
         colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
         for idx, a in enumerate(self.ai_list):
-            for seg in a.body:
-                pygame.draw.rect(screen, colors[idx%len(colors)], (seg[0]*CELL_SIZE, seg[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+            if a.alive:
+                for seg in a.body:
+                    pygame.draw.rect(screen, colors[idx%len(colors)], (seg[0]*CELL_SIZE, seg[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         # HUD
         y = 6

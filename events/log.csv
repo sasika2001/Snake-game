@@ -1,0 +1,100 @@
+step,kind,action,agent,pos,extra
+0,spawn,food_spawned,,"(4, 3)",{'type': 'normal'}
+0,spawn,food_spawned,,"(2, 3)",{'type': 'normal'}
+0,spawn,food_spawned,,"(10, 17)",{'type': 'normal'}
+0,spawn,food_spawned,,"(3, 5)",{'type': 'normal'}
+0,spawn,food_spawned,,"(3, 1)",{'type': 'normal'}
+7,eat,food_eaten,1,"(10, 17)",{'type': 'normal'}
+7,spawn,food_spawned,,"(0, 17)",{'type': 'normal'}
+15,spawn,food_spawned,,"(12, 13)",{'type': 'normal'}
+17,eat,food_eaten,1,"(0, 17)",{'type': 'normal'}
+17,spawn,food_spawned,,"(19, 15)",{'type': 'normal'}
+18,spawn,food_spawned,,"(19, 8)",{'type': 'bonus'}
+30,butterfly,food_perturb,,"{'from': (19, 8), 'to': (18, 8)}",None
+31,eat,food_eaten,2,"(2, 3)",{'type': 'normal'}
+31,spawn,food_spawned,,"(10, 11)",{'type': 'normal'}
+34,eat,food_eaten,2,"(3, 1)",{'type': 'normal'}
+34,spawn,food_spawned,,"(8, 9)",{'type': 'poison'}
+35,spawn,food_spawned,,"(9, 12)",{'type': 'normal'}
+46,spawn,food_spawned,,"(17, 7)",{'type': 'normal'}
+46,spawn,obstacle_spawned,,"(14, 17)",None
+46,spawn,obstacle_spawned,,"(1, 7)",None
+46,spawn,obstacle_spawned,,"(15, 18)",None
+46,spawn,obstacle_spawned,,"(4, 4)",None
+54,eat,food_eaten,2,"(17, 7)",{'type': 'normal'}
+54,spawn,food_spawned,,"(3, 18)",{'type': 'normal'}
+55,eat,food_eaten,1,"(10, 11)",{'type': 'normal'}
+55,spawn,food_spawned,,"(7, 17)",{'type': 'normal'}
+64,eat,food_eaten,2,"(19, 15)",{'type': 'normal'}
+64,spawn,food_spawned,,"(4, 19)",{'type': 'bonus'}
+71,spawn,food_spawned,,"(10, 6)",{'type': 'normal'}
+81,eat,food_eaten,1,"(4, 19)",{'type': 'bonus'}
+81,spawn,food_spawned,,"(15, 6)",{'type': 'normal'}
+83,eat,food_eaten,1,"(3, 18)",{'type': 'normal'}
+83,spawn,food_spawned,,"(15, 15)",{'type': 'normal'}
+86,eat,food_eaten,2,"(7, 17)",{'type': 'normal'}
+86,spawn,food_spawned,,"(7, 10)",{'type': 'normal'}
+90,spawn,food_spawned,,"(9, 7)",{'type': 'normal'}
+93,eat,food_eaten,2,"(7, 10)",{'type': 'normal'}
+93,spawn,food_spawned,,"(5, 17)",{'type': 'normal'}
+97,eat,food_eaten,2,"(9, 12)",{'type': 'normal'}
+97,spawn,food_spawned,,"(9, 15)",{'type': 'bonus'}
+100,eat,food_eaten,1,"(9, 7)",{'type': 'normal'}
+100,spawn,food_spawned,,"(0, 16)",{'type': 'normal'}
+104,spawn,food_spawned,,"(0, 7)",{'type': 'bonus'}
+107,eat,food_eaten,1,"(15, 6)",{'type': 'normal'}
+107,spawn,food_spawned,,"(1, 4)",{'type': 'bonus'}
+118,eat,food_eaten,2,"(0, 16)",{'type': 'normal'}
+118,spawn,food_spawned,,"(11, 9)",{'type': 'poison'}
+122,eat,food_eaten,1,"(9, 15)",{'type': 'bonus'}
+122,spawn,food_spawned,,"(3, 18)",{'type': 'normal'}
+122,spawn,obstacle_spawned,,"(8, 0)",None
+122,spawn,obstacle_spawned,,"(11, 8)",None
+122,spawn,obstacle_spawned,,"(7, 18)",None
+122,spawn,obstacle_spawned,,"(8, 3)",None
+122,spawn,obstacle_spawned,,"(7, 8)",None
+122,spawn,obstacle_spawned,,"(13, 0)",None
+123,move,obstacle_moved,,"{'from': (4, 4), 'to': (4, 5)}",None
+124,move,obstacle_moved,,"{'from': (13, 0), 'to': (13, 1)}",None
+129,move,obstacle_moved,,"{'from': (7, 18), 'to': (6, 17)}",None
+131,move,obstacle_moved,,"{'from': (1, 7), 'to': (2, 6)}",None
+134,move,obstacle_moved,,"{'from': (13, 1), 'to': (13, 0)}",None
+136,move,obstacle_moved,,"{'from': (14, 17), 'to': (13, 18)}",None
+136,move,obstacle_moved,,"{'from': (8, 0), 'to': (9, 0)}",None
+140,move,obstacle_moved,,"{'from': (13, 18), 'to': (12, 18)}",None
+140,move,obstacle_moved,,"{'from': (2, 6), 'to': (2, 7)}",None
+140,move,obstacle_moved,,"{'from': (4, 5), 'to': (4, 6)}",None
+142,move,obstacle_moved,,"{'from': (2, 7), 'to': (1, 8)}",None
+144,spawn,food_spawned,,"(6, 15)",{'type': 'normal'}
+145,eat,food_eaten,2,"(1, 4)",{'type': 'bonus'}
+145,spawn,food_spawned,,"(18, 12)",{'type': 'normal'}
+149,eat,food_eaten,2,"(0, 7)",{'type': 'bonus'}
+149,spawn,food_spawned,,"(18, 6)",{'type': 'poison'}
+149,move,obstacle_moved,,"{'from': (12, 18), 'to': (11, 17)}",None
+151,move,obstacle_moved,,"{'from': (9, 0), 'to': (9, 1)}",None
+152,move,obstacle_moved,,"{'from': (11, 8), 'to': (10, 9)}",None
+152,move,obstacle_moved,,"{'from': (8, 3), 'to': (7, 2)}",None
+153,move,obstacle_moved,,"{'from': (6, 17), 'to': (6, 16)}",None
+154,spawn,food_spawned,,"(8, 11)",{'type': 'normal'}
+154,move,obstacle_moved,,"{'from': (13, 0), 'to': (12, 1)}",None
+159,move,obstacle_moved,,"{'from': (4, 6), 'to': (5, 5)}",None
+161,move,obstacle_moved,,"{'from': (7, 2), 'to': (6, 2)}",None
+162,move,obstacle_moved,,"{'from': (9, 1), 'to': (9, 0)}",None
+162,move,obstacle_moved,,"{'from': (6, 16), 'to': (7, 15)}",None
+163,eat,food_eaten,2,"(6, 15)",{'type': 'normal'}
+163,spawn,food_spawned,,"(4, 0)",{'type': 'normal'}
+163,spawn,obstacle_spawned,,"(5, 13)",None
+163,spawn,obstacle_spawned,,"(12, 11)",None
+163,spawn,obstacle_spawned,,"(2, 15)",None
+163,spawn,obstacle_spawned,,"(12, 6)",None
+163,spawn,obstacle_spawned,,"(8, 19)",None
+163,spawn,obstacle_spawned,,"(10, 1)",None
+163,spawn,obstacle_spawned,,"(11, 18)",None
+163,spawn,obstacle_spawned,,"(13, 6)",None
+163,spawn,food_spawned,,"(9, 3)",{'type': 'bonus'}
+163,spawn,food_spawned,,"(5, 9)",{'type': 'normal'}
+164,move,obstacle_moved,,"{'from': (8, 19), 'to': (9, 19)}",None
+165,move,obstacle_moved,,"{'from': (13, 6), 'to': (13, 5)}",None
+166,move,obstacle_moved,,"{'from': (7, 8), 'to': (8, 8)}",None
+166,move,obstacle_moved,,"{'from': (12, 1), 'to': (13, 0)}",None
+168,move,obstacle_moved,,"{'from': (7, 15), 'to': (7, 14)}",None

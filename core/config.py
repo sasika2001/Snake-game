@@ -16,3 +16,8 @@ FOOD_PULSE_SPEED = 6
 FOOD_PULSE_AMPLITUDE = 6
 
 FONT_NAME = 'Arial'
+
+# MAS / experiment settings
+BUTTERFLY_MODE = True        # enable butterfly perturbation experiment
+BUTTERFLY_STEP = 30         # step when tiny perturbation happens (1-based)
+EVENT_LOG_PATH = "events/log.csv"  # events log to record runs

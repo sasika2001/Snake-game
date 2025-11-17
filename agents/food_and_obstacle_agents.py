@@ -1,4 +1,3 @@
-# agents/food_and_obstacle_agents.py
 import random
 from core.config import GRID_SIZE
 

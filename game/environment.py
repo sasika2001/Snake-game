@@ -185,7 +185,7 @@ class Environment:
             pygame.draw.rect(screen, self.human.color, (seg[0]*CELL_SIZE, seg[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         # draw alive AI snakes only
-        colors = [(200,0,0),(0,0,200),(200,0,200),(0,200,200)]
+        colors = [(0,0,200),(0,0,200),(0,0,200),(0,0,200)]
         for idx, a in enumerate(self.ai_list):
             if a.alive:
                 for seg in a.body:

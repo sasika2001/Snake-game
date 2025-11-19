@@ -1,119 +1,181 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MULTI AGENT SNAKE ARENA — README</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; line-height:1.6; color:#111; padding:24px; max-width:1000px; margin:auto; background:#f7f8fb; }
-    header { background:linear-gradient(90deg,#0f172a,#0b1220); color:white; padding:20px; border-radius:12px; margin-bottom:20px; }
-    h1 { margin:0; font-size:28px; }
-    .meta { margin-top:6px; color:#cbd5e1; font-size:14px; }
-    section { background:white; padding:18px; border-radius:10px; box-shadow:0 6px 18px rgba(12,15,30,0.06); margin-bottom:16px; }
-    pre { background:#0b1220; color:#dbeafe; padding:12px; border-radius:8px; overflow:auto; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .badge { display:inline-block; padding:6px 10px; border-radius:999px; background:#eef2ff; color:#3730a3; font-weight:600; font-size:13px; margin-right:8px; }
-    .small { font-size:13px; color:#475569; }
-    footer { text-align:center; color:#64748b; font-size:13px; margin-top:12px; }
-    img.sshot { width:100%; border-radius:8px; border:1px solid #e6eef8; }
-    @media (max-width:800px){ .grid{grid-template-columns:1fr} }
-  </style>
+<meta charset="utf-8">
+<title>MULTI AGENT SNAKE ARENA — README</title>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+        line-height: 1.6;
+        color: #111;
+        padding: 24px;
+        max-width: 1000px;
+        margin: auto;
+        background: #f7f8fb;
+    }
+
+    header {
+        background: linear-gradient(90deg, #0f172a, #0b1220);
+        color: white;
+        padding: 22px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 28px;
+    }
+
+    .meta {
+        margin-top: 5px;
+        font-size: 14px;
+        color: #cbd5e1;
+    }
+
+    section {
+        background: white;
+        padding: 18px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        box-shadow: 0 6px 18px rgba(12, 15, 30, 0.06);
+    }
+
+    pre {
+        background: #0b1220;
+        color: #dbeafe;
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    img.sshot {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #e6eef8;
+    }
+
+    @media(max-width:800px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 </head>
+
+
 <body>
-  <header>
+
+<header>
     <h1>MULTI AGENT SNAKE ARENA</h1>
-    <div class="meta">A multi-agent snake arena demonstrating agentic behavior, emergent complexity, and interaction among agents — by <strong>Sasika Sewmini</strong> (Index: 225532T)</div>
-  </header>
+    <p class="meta">A multi-agent snake arena demonstrating agentic behavior, emergent complexity & interactive dynamics.<br>
+    By <strong>Sasika Sewmini</strong> — Index <strong>225532T</strong></p>
+</header>
 
-  <section>
-    <h2>About</h2>
-    <p>
-      <strong>Multi Agent Snake Arena</strong> is an extended snake game built to showcase multiple interacting agents:
-      autonomous AI-controlled snakes, food agents, obstacle agents and environmental rules. The project explores agentic features such as
-      perception, decision-making (rational agents), resource competition, emergent behaviors, and an emergency handling mechanism.
-    </p>
-  </section>
+<section>
+<h2>About</h2>
+<p>
+Multi Agent Snake Arena is an extended snake game built to showcase multiple interacting agents: AI-controlled snakes,
+a human-controlled snake, food agents, obstacle agents, and environmental rule-based behaviors.
 
-  <section>
-    <h2>Key features</h2>
-    <ul>
-      <li><strong>Multiple agent types:</strong> AI Snake Agents, Player-controlled Snake, Food Agents, Obstacle Agents.</li>
-      <li><strong>Rational agents:</strong> Agent decision-making driven by heuristics or ML policies for seeking food and avoiding collisions.</li>
-      <li><strong>Emergent behavior:</strong> Complex group dynamics (competition, avoidance) resulting from simple local rules.</li>
-      <li><strong>Emergency feature:</strong> When critical events occur (e.g., imminent collision or starvation), agents trigger an emergency protocol to re-plan or prioritize survival actions.</li>
-      <li><strong>Visualization:</strong> Pygame-based arena showing agent movements, state overlay and debugging info.</li>
-      <li><strong>Configurable:</strong> adjustable agent counts, speed, arena size and reward rules for experiments.</li>
-    </ul>
-  </section>
+It explores concepts such as:
+<strong>rational agents, perception, decision-making, complex systems,
+emergent behavior, emergency handling, and agent coordination</strong>.
+</p>
+</section>
 
-  <section>
-    <h2>Agentic features (detailed)</h2>
-    <ul>
-      <li><strong>Perception:</strong> agents sense local cells/tiles around them (N, S, E, W and diagonals up to a configurable range).</li>
-      <li><strong>State & memory:</strong> each agent has internal state (hunger, steps survived, target coordinates).</li>
-      <li><strong>Decision-making:</strong> rule-based heuristics or trained policies decide the next action (move direction, evade, chase).</li>
-      <li><strong>Goal-oriented behavior:</strong> agents prioritize food collection, survival, or score-maximization depending on configuration.</li>
-      <li><strong>Coordination & competition:</strong> agents interact indirectly via shared environment (food consumption, obstacles), producing emergent patterns.</li>
-      <li><strong>Emergency handling:</strong> emergency events (e.g., predicted collision in < 2 steps or low energy) cause immediate re-evaluation of actions and may override normal goals.</li>
-    </ul>
-  </section>
+<section>
+<h2>Game Elements & Colors</h2>
 
-  <section>
-    <h2>Tech stack</h2>
-    <div class="grid">
-      <div>
-        <span class="badge">Python 3.10+</span>
-        <span class="badge">Pygame</span>
-        <span class="badge">NumPy</span>
-      </div>
-      <div class="small">
-        <p>Optional: You can plug in reinforcement learning libraries (stable-baselines3, PyTorch) if you want learning-based agents. Visualization and debugging overlays are implemented with Pygame.</p>
-      </div>
-    </div>
-  </section>
+<ul>
+    <li><strong>Human Snake:</strong> <span style="color:green; font-weight:bold;">Green</span></li>
+    <li><strong>AI Snake:</strong> <span style="color:red; font-weight:bold;">Red</span></li>
+    <li><strong>Normal Food:</strong> <span style="color:gold; font-weight:bold;">Yellow</span> (+2)</li>
+    <li><strong>Poison:</strong> <span style="color:hotpink; font-weight:bold;">Pink</span> (−4)</li>
+    <li><strong>Bonus Food:</strong> <span style="color:#38bdf8; font-weight:bold;">Light Blue</span> (+6)</li>
+</ul>
 
-  <section>
-    <h2>Installation</h2>
-    <p class="small">Assumes a typical Python environment. Adjust commands for your OS as needed.</p>
+</section>
 
-    <pre>
-# clone the repo
+<section>
+<h2>Key Features</h2>
+<ul>
+    <li>Multiple agent types (AI snake, player snake, food agents, obstacle agents).</li>
+    <li>Rational agents with goal-oriented decision-making.</li>
+    <li>Emergent behavior from simple rules (competition, avoidance, pattern formation).</li>
+    <li>Emergency feature for critical events (collision risk, starvation, etc.).</li>
+    <li>Pygame visualization with overlays and debugging tools.</li>
+    <li>Configurable speed, arena size, reward rules & agent count.</li>
+</ul>
+</section>
+
+<section>
+<h2>Agentic Features (Detailed)</h2>
+<ul>
+    <li><strong>Perception:</strong> Agents sense nearby tiles (N, S, E, W + diagonals).</li>
+    <li><strong>Internal State:</strong> Hunger, survival time, intended path.</li>
+    <li><strong>Decision-Making:</strong> Rule-based or heuristic-driven movement.</li>
+    <li><strong>Goal-Oriented:</strong> Food seeking, survival, or maximizing score.</li>
+    <li><strong>Coordination & Competition:</strong> Indirect interaction via shared environment.</li>
+    <li><strong>Emergency Handling:</strong> Rapid re-evaluation when danger is detected.</li>
+</ul>
+</section>
+
+<section>
+<h2>Tech Stack</h2>
+<ul>
+    <li>Python 3.10+</li>
+    <li>Pygame</li>
+    <li>NumPy</li>
+</ul>
+<p>Optional: Reinforcement learning integration (Stable-Baselines3, PyTorch)</p>
+</section>
+
+<section>
+<h2>Installation</h2>
+<pre>
+# Clone repository
 git clone &lt;your-repo-url&gt;
 cd multi-agent-snake-arena
 
-# create a venv and activate it
+# Create virtual environment
 python -m venv venv
-# Windows
+
+# Activate (Windows)
 venv\Scripts\activate
-# macOS / Linux
+
+# Activate (macOS/Linux)
 source venv/bin/activate
 
-# install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# run the game
+# Run the game
 python main.py
-    </pre>
-    <p class="small">If you don't have a <code>requirements.txt</code>, create one with:</p>
-    <pre>
-pygame
-numpy
-    </pre>
-  </section>
+</pre>
+</section>
 
-  <section>
-    <h2>How to play / Controls</h2>
-    <ul>
-      <li><strong>Player snake controls:</strong> Arrow keys or WASD to move (configurable in <code>config.py</code>).</li>
-      <li><strong>Start / Pause:</strong> <code>Space</code> or <code>P</code> (implementation-specific)</li>
-      <li><strong>Toggle debug overlays:</strong> <code>D</code> (shows agent states, sensors)</li>
-      <li><strong>Adjust simulation speed:</strong> +/- keys or GUI slider (if included)</li>
-    </ul>
-  </section>
+<section>
+<h2>Controls</h2>
+<ul>
+    <li>Move: Arrow keys or WASD</li>
+    <li>Pause: Space or P</li>
+    <li>Debug info: D</li>
+    <li>Speed control: + / -</li>
+</ul>
+</section>
 
-  <section>
-    <h2>Project structure (example)</h2>
-    <pre>
+<section>
+<h2>Project Structure</h2>
+<pre>
 multi-agent-snake-arena/
 ├─ README.html
 ├─ main.py
@@ -126,54 +188,32 @@ multi-agent-snake-arena/
 │  ├─ snake_agent.py
 │  ├─ food_agent.py
 │  └─ obstacle_agent.py
-├─ experiments/
-│  └─ train_policy.py
 ├─ assets/
-│  └─ sprites/
+│  └─ screenshots/
 └─ requirements.txt
-    </pre>
-  </section>
+</pre>
+</section>
 
-  <section>
-    <h2>Typical experiments & knobs</h2>
-    <ul>
-      <li>Vary agent counts (e.g., multiple AI snakes vs single player) to watch emergent competition.</li>
-      <li>Enable learning agents to train policies that maximize survival/time-to-death.</li>
-      <li>Tune emergency thresholds (how soon to trigger emergency avoidance) and observe behavior changes.</li>
-      <li>Log metrics: collisions, food collected per agent, survival time, average path length.</li>
-    </ul>
-  </section>
+<section>
+<h2>Screenshots</h2>
+<div class="grid">
+    <img class="sshot" src="assets/screenshots/s1.png" alt="Screenshot 1">
+    <img class="sshot" src="assets/screenshots/s2.png" alt="Screenshot 2">
+</div>
+</section>
 
-  <section>
-    <h2>Screenshots</h2>
-    <p class="small">Replace these image paths with your real screenshots (stored in <code>/assets/screenshots/</code>).</p>
-    <div class="grid">
-      <img src="assets/screenshots/arena_overview.png" alt="Arena overview" class="sshot" />
-      <img src="assets/screenshots/agent_debug.png" alt="Agent debug overlay" class="sshot" />
-    </div>
-  </section>
+<section>
+<h2>Contact</h2>
+<p>
+<strong>Sasika Sewmini</strong><br>
+Index Number: 225532T<br>
+(Add email or GitHub link here)
+</p>
+</section>
 
-  <section>
-    <h2>Contributing</h2>
-    <p class="small">Contributions welcome! Please open issues for bug reports or feature requests. If you'd like to contribute code, fork the repo, create a feature branch and open a pull request describing the change and the motivation.</p>
-  </section>
+<footer>
+    MULTI AGENT SNAKE ARENA — README
+</footer>
 
-  <section>
-    <h2>License</h2>
-    <p>MIT License — see <code>LICENSE</code> file for details.</p>
-  </section>
-
-  <section>
-    <h2>Contact</h2>
-    <p>
-      Project lead: <strong>Sasika Sewmini</strong><br/>
-      Index: 225532T<br/>
-      (Add your email or GitHub profile link here)
-    </p>
-  </section>
-
-  <footer>
-    <div class="small">If you want, I can also convert this to a Markdown `README.md` or customize text/screenshots/commands for your exact repository layout — tell me which files you have and I'll adapt it.</div>
-  </footer>
 </body>
 </html>

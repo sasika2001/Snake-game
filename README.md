@@ -1,219 +1,125 @@
-<!doctype html>
-<html lang="en">
+<h1>🐍 Multi-Agent Snake Arena (MAS Project)</h1>
 
-<head>
-<meta charset="utf-8">
-<title>MULTI AGENT SNAKE ARENA — README</title>
-
-<style>
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-        line-height: 1.6;
-        color: #111;
-        padding: 24px;
-        max-width: 1000px;
-        margin: auto;
-        background: #f7f8fb;
-    }
-
-    header {
-        background: linear-gradient(90deg, #0f172a, #0b1220);
-        color: white;
-        padding: 22px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-    }
-
-    header h1 {
-        margin: 0;
-        font-size: 28px;
-    }
-
-    .meta {
-        margin-top: 5px;
-        font-size: 14px;
-        color: #cbd5e1;
-    }
-
-    section {
-        background: white;
-        padding: 18px;
-        border-radius: 10px;
-        margin-bottom: 16px;
-        box-shadow: 0 6px 18px rgba(12, 15, 30, 0.06);
-    }
-
-    pre {
-        background: #0b1220;
-        color: #dbeafe;
-        padding: 12px;
-        border-radius: 8px;
-        overflow-x: auto;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    img.sshot {
-        width: 100%;
-        border-radius: 8px;
-        border: 1px solid #e6eef8;
-    }
-
-    @media(max-width:800px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-</head>
-
-
-<body>
-
-<header>
-    <h1>MULTI AGENT SNAKE ARENA</h1>
-    <p class="meta">A multi-agent snake arena demonstrating agentic behavior, emergent complexity & interactive dynamics.<br>
-    By <strong>Sasika Sewmini</strong> — Index <strong>225532T</strong></p>
-</header>
-
-<section>
-<h2>About</h2>
 <p>
-Multi Agent Snake Arena is an extended snake game built to showcase multiple interacting agents: AI-controlled snakes,
-a human-controlled snake, food agents, obstacle agents, and environmental rule-based behaviors.
-
-It explores concepts such as:
-<strong>rational agents, perception, decision-making, complex systems,
-emergent behavior, emergency handling, and agent coordination</strong>.
+Multi-Agent Snake Arena is a Python-based simulation where multiple autonomous agents 
+(Human Snake, AI Snakes, Food Agents, Obstacle Agents, and Bonus Agents) interact inside 
+a dynamic environment. The game demonstrates core <b>Multi-Agent System (MAS)</b> concepts 
+such as autonomy, reactivity, proactiveness, rationality, cooperation, competition, 
+complex-system behaviour, and emergent outcomes.
 </p>
-</section>
 
-<section>
-<h2>Game Elements & Colors</h2>
+<hr>
+
+<h2>🎮 Game Overview</h2>
+<p>The arena contains several agents that interact with each other in real time. The 
+environment is fully dynamic, adaptive, and unpredictable—resulting in emergent behaviour.</p>
 
 <ul>
-    <li><strong>Human Snake:</strong> <span style="color:green; font-weight:bold;">Green</span></li>
-    <li><strong>AI Snake:</strong> <span style="color:red; font-weight:bold;">Red</span></li>
-    <li><strong>Normal Food:</strong> <span style="color:gold; font-weight:bold;">Yellow</span> (+2)</li>
-    <li><strong>Poison:</strong> <span style="color:hotpink; font-weight:bold;">Pink</span> (−4)</li>
-    <li><strong>Bonus Food:</strong> <span style="color:#38bdf8; font-weight:bold;">Light Blue</span> (+6)</li>
+    <li><b>Player controls the Human Snake</b> using arrow keys.</li>
+    <li><b>AI Snakes</b> independently navigate, collect food, avoid obstacles, and compete.</li>
+    <li><b>Food, Poison & Bonus agents</b> spawn randomly, affecting the score.</li>
 </ul>
 
-</section>
+<hr>
 
-<section>
-<h2>Key Features</h2>
+<h2>🧩 Game Elements & Colors</h2>
+
+<table border="1" cellpadding="8">
+<tr>
+    <th>Element / Agent</th>
+    <th>Color</th>
+    <th>Effect / Description</th>
+</tr>
+
+<tr>
+    <td><b>Human Player Snake</b></td>
+    <td style="background: #00aa00; color: white;">Green</td>
+    <td>Controlled by the player. Main agent.</td>
+</tr>
+
+<tr>
+    <td><b>AI Snakes</b></td>
+    <td style="background: purple; color: white;">Purple</td>
+    <td>Autonomous agents with decision-making logic.</td>
+</tr>
+
+<tr>
+    <td><b>Normal Food</b></td>
+    <td style="background: yellow;">Yellow</td>
+    <td>Increases score by <b>+2</b></td>
+</tr>
+
+<tr>
+    <td><b>Poison</b></td>
+    <td style="background: pink;">Pink</td>
+    <td>Reduces score by <b>-4</b></td>
+</tr>
+
+<tr>
+    <td><b>Bonus Food</b></td>
+    <td style="background: #66ccff;">Light Blue</td>
+    <td>Increases score by <b>+6</b></td>
+</tr>
+
+<tr>
+    <td><b>Obstacles</b></td>
+    <td style="background: gray; color: white;">Gray</td>
+    <td>Must be avoided; collision ends the game.</td>
+</tr>
+</table>
+
+<hr>
+
+<h2>🤖 Agentic Features (MAS Concepts)</h2>
+
 <ul>
-    <li>Multiple agent types (AI snake, player snake, food agents, obstacle agents).</li>
-    <li>Rational agents with goal-oriented decision-making.</li>
-    <li>Emergent behavior from simple rules (competition, avoidance, pattern formation).</li>
-    <li>Emergency feature for critical events (collision risk, starvation, etc.).</li>
-    <li>Pygame visualization with overlays and debugging tools.</li>
-    <li>Configurable speed, arena size, reward rules & agent count.</li>
+    <li><b>Autonomy</b> – Each AI snake behaves independently without human control.</li>
+    <li><b>Reactivity</b> – Agents sense the environment and respond (food, poison, danger).</li>
+    <li><b>Proactiveness</b> – AI snakes plan movements to maximize survival and score.</li>
+    <li><b>Rationality</b> – Agents choose the best action based on goals (avoid death, get points).</li>
+    <li><b>Cooperation</b> – Indirect collaboration by sharing space and reacting to each other.</li>
+    <li><b>Competition</b> – Multiple snakes race for food and territory.</li>
+    <li><b>Learning Elements (optional)*</b> – Can be extended for Q-learning or heuristics.</li>
+    <li><b>Complex System Behaviour</b> – Many simple agents create unpredictable outcomes.</li>
+    <li><b>Butterfly Effect</b> – A small early action (one food pickup) can change the final outcome drastically.</li>
 </ul>
-</section>
 
-<section>
-<h2>Agentic Features (Detailed)</h2>
-<ul>
-    <li><strong>Perception:</strong> Agents sense nearby tiles (N, S, E, W + diagonals).</li>
-    <li><strong>Internal State:</strong> Hunger, survival time, intended path.</li>
-    <li><strong>Decision-Making:</strong> Rule-based or heuristic-driven movement.</li>
-    <li><strong>Goal-Oriented:</strong> Food seeking, survival, or maximizing score.</li>
-    <li><strong>Coordination & Competition:</strong> Indirect interaction via shared environment.</li>
-    <li><strong>Emergency Handling:</strong> Rapid re-evaluation when danger is detected.</li>
-</ul>
-</section>
+<hr>
 
-<section>
-<h2>Tech Stack</h2>
+<h2>⚙️ Technologies Used</h2>
 <ul>
-    <li>Python 3.10+</li>
+    <li>Python</li>
     <li>Pygame</li>
-    <li>NumPy</li>
+    <li>OOP + Multi-Agent System Design</li>
 </ul>
-<p>Optional: Reinforcement learning integration (Stable-Baselines3, PyTorch)</p>
-</section>
 
-<section>
-<h2>Installation</h2>
+<hr>
+
+<hr>
+
+<h2>🚀 How to Run</h2>
+
 <pre>
-# Clone repository
-git clone &lt;your-repo-url&gt;
-cd multi-agent-snake-arena
-
-# Create virtual environment
-python -m venv venv
-
-# Activate (Windows)
-venv\Scripts\activate
-
-# Activate (macOS/Linux)
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the game
+pip install pygame
 python main.py
 </pre>
-</section>
 
-<section>
-<h2>Controls</h2>
+<hr>
+
+<h2>📌 Key Features</h2>
 <ul>
-    <li>Move: Arrow keys or WASD</li>
-    <li>Pause: Space or P</li>
-    <li>Debug info: D</li>
-    <li>Speed control: + / -</li>
+    <li>Multiple autonomous agents</li>
+    <li>Competitive + cooperative multi-agent interactions</li>
+    <li>Dynamic scoring system</li>
+    <li>Color-based agent visualization</li>
+    <li>Emergent complex-system behaviour</li>
+    <li>AI snakes with autonomous decisions</li>
 </ul>
-</section>
 
-<section>
-<h2>Project Structure</h2>
-<pre>
-multi-agent-snake-arena/
-├─ README.html
-├─ main.py
-├─ core/
-│  ├─ config.py
-│  ├─ engine.py
-│  └─ renderer.py
-├─ agents/
-│  ├─ base_agent.py
-│  ├─ snake_agent.py
-│  ├─ food_agent.py
-│  └─ obstacle_agent.py
-├─ assets/
-│  └─ screenshots/
-└─ requirements.txt
-</pre>
-</section>
+<hr>
 
-<section>
-<h2>Screenshots</h2>
-<div class="grid">
-    <img class="sshot" src="assets/screenshots/s1.png" alt="Screenshot 1">
-    <img class="sshot" src="assets/screenshots/s2.png" alt="Screenshot 2">
-</div>
-</section>
-
-<section>
-<h2>Contact</h2>
-<p>
-<strong>Sasika Sewmini</strong><br>
-Index Number: 225532T<br>
-(Add email or GitHub link here)
-</p>
-</section>
-
-<footer>
-    MULTI AGENT SNAKE ARENA — README
-</footer>
+<h2>📜 License</h2>
+<p>This project is open-source. You may modify and use it freely.</p>
 
 </body>
 </html>

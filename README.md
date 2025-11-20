@@ -10,7 +10,7 @@ complex-system behaviour, and emergent outcomes.
 
 <hr>
 
-<h2>🎮 Game Overview</h2>
+<h2> Game Overview</h2>
 <p>The arena contains several agents that interact with each other in real time. The 
 environment is fully dynamic, adaptive, and unpredictable—resulting in emergent behaviour.</p>
 
@@ -22,7 +22,7 @@ environment is fully dynamic, adaptive, and unpredictable—resulting in emergen
 
 <hr>
 
-<h2>🧩 Game Elements & Colors</h2>
+<h2> Game Elements & Colors</h2>
 
 <table border="1" cellpadding="8">
 <tr>
@@ -70,7 +70,7 @@ environment is fully dynamic, adaptive, and unpredictable—resulting in emergen
 
 <hr>
 
-<h2>🤖 Agentic Features (MAS Concepts)</h2>
+<h2>Agentic Features (MAS Concepts)</h2>
 
 <ul>
     <li><b>Autonomy</b> – Each AI snake behaves independently without human control.</li>
@@ -86,7 +86,7 @@ environment is fully dynamic, adaptive, and unpredictable—resulting in emergen
 
 <hr>
 
-<h2>⚙️ Technologies Used</h2>
+<h2>Technologies Used</h2>
 <ul>
     <li>Python</li>
     <li>Pygame</li>
@@ -97,7 +97,7 @@ environment is fully dynamic, adaptive, and unpredictable—resulting in emergen
 
 <hr>
 
-<h2>🚀 How to Run</h2>
+<h2> How to Run</h2>
 
 <pre>
 pip install pygame
@@ -106,7 +106,7 @@ python main.py
 
 <hr>
 
-<h2>📌 Key Features</h2>
+<h2> Key Features</h2>
 <ul>
     <li>Multiple autonomous agents</li>
     <li>Competitive + cooperative multi-agent interactions</li>
@@ -118,7 +118,7 @@ python main.py
 
 <hr>
 
-<h2>📜 License</h2>
+<h2> License</h2>
 <p>This project is open-source. You may modify and use it freely.</p>
 
 </body>
